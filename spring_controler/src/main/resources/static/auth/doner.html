@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate Items</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #343a40;
+            color: #f8f9fa;
+        }
+        .form-control, .form-select {
+            background-color: #495057;
+            color: #f8f9fa;
+            border: 1px solid #6c757d;
+        }
+        .form-control::placeholder, .form-select::placeholder {
+            color: #ced4da;
+        }
+        .btn-primary {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-primary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        footer {
+            background-color: #212529;
+        }
+        .status-btn {
+            cursor: pointer;
+            font-size: 20px;
+            color: #f8f9fa;
+        }
+        .received {
+            color: #28a745; /* Green */
+        }
+        .not-received {
+            color: #dc3545; /* Red */
+        }
+    </style>
+</head>
+<body>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Donor Management System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/doner">Donate</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/payment">Payment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">Admin</a>
+                    </li>
+                   
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Header Section -->
+    <header class="bg-primary text-white text-center py-5">
+        <h1>Donate Food and Clothes</h1>
+        <p>Your donations can make a difference in someone's life</p>
+    </header>
+
+    <!-- Donation Form Section -->
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Donation Form</h2>
+        <form id="donationForm">
+            <div class="mb-3">
+                <label for="donorName" class="form-label">Your Name</label>
+                <input type="text" class="form-control" id="donorName" placeholder="Enter your name" required>
+            </div>
+            <div class="mb-3">
+                <label for="donorEmail" class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="donorEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="mb-3">
+                <label for="donationType" class="form-label">Select Donation Type</label>
+                <select class="form-select" id="donationType" required>
+                    <option selected disabled>Select type of donation</option>
+                    <option value="Food">Food</option>
+                    <option value="Clothes">Clothes</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="donationDetails" class="form-label">Donation Details</label>
+                <textarea class="form-control" id="donationDetails" rows="4" placeholder="Describe the items you are donating" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Submit Donation</button>
+        </form>
+    </div>
+
+    <!-- Table Section -->
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Donation Records</h2>
+        <table class="table table-dark table-striped" id="donationTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Type</th>
+                    <th>Details</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be added dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <p>&copy; 2024 Donor Management. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const donationForm = document.getElementById('donationForm');
+            const tableBody = document.getElementById('donationTable').querySelector('tbody');
+
+            // Load donation records from localStorage when the page loads
+            function loadDonations() {
+                const donations = JSON.parse(localStorage.getItem('donations')) || [];
+                tableBody.innerHTML = ""; // Clear existing table rows
+
+                donations.forEach((donation, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${donation.name}</td>
+                        <td>${donation.email}</td>
+                        <td>${donation.type}</td>
+                        <td>${donation.details}</td>
+                        <td><span class="status-btn ${donation.status ? 'received' : 'not-received'}" data-index="${index}">${donation.status ? '✔' : '✘'}</span></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Add event listeners to toggle the donation status
+                document.querySelectorAll('.status-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const index = this.getAttribute('data-index');
+                        toggleDonationStatus(index);
+                    });
+                });
+            }
+
+            // Toggle the status of the donation
+            function toggleDonationStatus(index) {
+                const donations = JSON.parse(localStorage.getItem('donations')) || [];
+                donations[index].status = !donations[index].status; // Toggle status
+                localStorage.setItem('donations', JSON.stringify(donations)); // Save to localStorage
+                loadDonations(); // Reload donations to update the table
+            }
+
+            // Add a new donation record and save to localStorage
+            donationForm.addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent form submission
+
+                // Get form values
+                const name = document.getElementById('donorName').value;
+                const email = document.getElementById('donorEmail').value;
+                const type = document.getElementById('donationType').value;
+                const details = document.getElementById('donationDetails').value;
+
+                // Retrieve existing donations from localStorage
+                const donations = JSON.parse(localStorage.getItem('donations')) || [];
+                
+                // Add the new donation to the array
+                donations.push({ name, email, type, details, status: false }); // Default status as not received (false)
+
+                // Save the updated array back to localStorage
+                localStorage.setItem('donations', JSON.stringify(donations));
+
+                // Reload the table to reflect the new record
+                loadDonations();
+
+                // Reset the form
+                donationForm.reset();
+            });
+
+            // Initialize the table with stored data on page load
+            loadDonations();
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

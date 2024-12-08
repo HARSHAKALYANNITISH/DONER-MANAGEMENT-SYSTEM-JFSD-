@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .table-container {
+            margin-bottom: 30px;
+            display: none; /* Hide by default */
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        footer {
+            background-color: #212529;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Donor Management System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/payment">Payment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/doner">Donate</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Dashboard -->
+    <div class="container">
+        <h1 class="text-center mb-4">Admin Dashboard</h1>
+
+        <!-- Toggle Buttons -->
+        <div class="d-flex justify-content-center mb-4">
+            <button id="toggleContact" class="btn btn-primary mx-2">Show Contact Data</button>
+            <button id="toggleDonation" class="btn btn-primary mx-2">Show Donation Data</button>
+        </div>
+
+        <!-- Contact Data Section -->
+        <div class="table-container" id="contactSection">
+            <h2>Contact Form Submissions</h2>
+            <table class="table table-dark table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Country</th>
+                        <th>State</th>
+                        <th>District</th>
+                        <th>City</th>
+                        <th>Address</th>
+                        <th>House/Door No</th>
+                        <th>Response</th>
+                    </tr>
+                </thead>
+                <tbody id="contactTable">
+                    <!-- Rows will be added dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Donation Data Section -->
+        <div class="table-container" id="donationSection">
+            <h2>Donation Records</h2>
+            <table class="table table-dark table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th>Details</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="donationTable">
+                    <!-- Rows will be added dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <p>&copy; 2024 Donor Management. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Load Contact Form Submissions
+            function loadContactData() {
+                const contactData = JSON.parse(localStorage.getItem('submittedData')) || [];
+                const contactTable = document.getElementById('contactTable');
+                contactTable.innerHTML = ""; // Clear table
+                contactData.forEach((entry) => {
+                    const row = `
+                        <tr>
+                            <td>${entry.name}</td>
+                            <td>${entry.email}</td>
+                            <td>${entry.phone}</td>
+                            <td>${entry.country}</td>
+                            <td>${entry.state}</td>
+                            <td>${entry.district}</td>
+                            <td>${entry.city}</td>
+                            <td>${entry.address}</td>
+                            <td>${entry.houseNumber}</td>
+                            <td>${entry.response || "No Response"}</td>
+                        </tr>
+                    `;
+                    contactTable.innerHTML += row;
+                });
+            }
+
+            // Load Donation Records
+            function loadDonationData() {
+                const donationData = JSON.parse(localStorage.getItem('donations')) || [];
+                const donationTable = document.getElementById('donationTable');
+                donationTable.innerHTML = ""; // Clear table
+                donationData.forEach((donation, index) => {
+                    const row = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${donation.name}</td>
+                            <td>${donation.email}</td>
+                            <td>${donation.type}</td>
+                            <td>${donation.details}</td>
+                            <td>${donation.status ? "✔ Received" : "✘ Not Received"}</td>
+                        </tr>
+                    `;
+                    donationTable.innerHTML += row;
+                });
+            }
+
+            // Event listeners for toggles
+            document.getElementById('toggleContact').addEventListener('click', function () {
+                const contactSection = document.getElementById('contactSection');
+                contactSection.style.display = contactSection.style.display === 'none' ? 'block' : 'none';
+                if (contactSection.style.display === 'block') {
+                    loadContactData();
+                }
+            });
+
+            document.getElementById('toggleDonation').addEventListener('click', function () {
+                const donationSection = document.getElementById('donationSection');
+                donationSection.style.display = donationSection.style.display === 'none' ? 'block' : 'none';
+                if (donationSection.style.display === 'block') {
+                    loadDonationData();
+                }
+            });
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
